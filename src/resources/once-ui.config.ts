@@ -14,7 +14,7 @@ import {
 import { home, person, social } from "./content";
 
 // IMPORTANT: Replace with your own domain address - it's used for SEO in meta tags and schema
-const baseURL: string = "https://demo.magic-portfolio.com";
+const baseURL: string = "http://localhost:3000";
 
 const routes: RoutesConfig = {
   "/": true,
@@ -32,9 +32,8 @@ const display: DisplayConfig = {
 
 // Enable password protection on selected routes
 // Set password in the .env file, refer to .env.example
-const protectedRoutes: ProtectedRoutesConfig = {
-  "/work/automate-design-handovers-with-a-figma-to-code-pipeline": true,
-};
+// Example: "/work/my-private-case-study": true
+const protectedRoutes: ProtectedRoutesConfig = {};
 
 // Import and set font for each variant
 import { Geist } from "next/font/google";
@@ -193,12 +192,15 @@ const schema: SchemaConfig = {
   email: person.email,
 };
 
-// social links — derived from the social array in content.tsx to avoid duplication
-const sameAs: SameAsConfig = {
-  threads: social.find((s) => s.name === "Threads")?.link ?? "",
-  linkedin: social.find((s) => s.name === "LinkedIn")?.link ?? "",
-  discord: social.find((s) => s.name === "Discord")?.link ?? "",
-};
+// social links for schema.org sameAs — derived from the social array in content.tsx
+// to avoid duplication. Any social entry with a link is included automatically,
+// so adding or removing a platform in content.tsx is all that's needed.
+// The mailto: entry is excluded since sameAs expects profile URLs.
+const sameAs: SameAsConfig = Object.fromEntries(
+  social
+    .filter((s) => s.link && !s.link.startsWith("mailto:"))
+    .map((s) => [s.name.toLowerCase(), s.link]),
+);
 
 // social sharing configuration for blog posts
 const socialSharing: SocialSharingConfig = {
