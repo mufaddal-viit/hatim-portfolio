@@ -7,4 +7,6 @@ export { RouteGuard } from "@/components/RouteGuard";
 export { Providers } from "@/components/Providers";
 export { ScrollToHash } from "@/components/ScrollToHash";
 export { ThemeToggle } from "@/components/ThemeToggle";
+export { ThemeInitScript } from "@/components/ThemeInitScript";
+export { BrandMark } from "@/components/BrandMark";
 export { CustomMDX } from "@/components/mdx";

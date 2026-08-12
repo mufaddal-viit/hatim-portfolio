@@ -1,0 +1,27 @@
+/**
+ * Brand lockup — monogram mark stacked above the wordmark, centred.
+ * Colour is inherited, so the same component works on the dark hero panel
+ * and on light page backgrounds without variants.
+ */
+
+.lockup {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.28rem;
+  line-height: 1;
+  color: inherit;
+}
+
+.mark {
+  width: 2.1rem;
+  height: auto;
+  display: block;
+}
+
+.wordmark {
+  font-family: var(--font-display), Georgia, "Times New Roman", serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}

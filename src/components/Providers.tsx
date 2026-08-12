@@ -1,51 +1,42 @@
 "use client";
 
 import {
-  BorderStyle,
-  ChartMode,
-  ChartVariant,
   DataThemeProvider,
   IconProvider,
   LayoutProvider,
-  NeutralColor,
-  ScalingSize,
-  Schemes,
-  SolidStyle,
-  SolidType,
-  SurfaceStyle,
   ThemeProvider,
   ToastProvider,
-  TransitionStyle,
 } from "@once-ui-system/core";
-import { style, dataStyle } from "../resources";
-import { iconLibrary } from "../resources/icons";
+import { dataStyle, style } from "@/resources/theme.config";
+import { iconLibrary } from "@/resources/icons";
 
+/**
+ * Client-side provider stack.
+ *
+ * Theme values come from theme.config.ts — the same source the pre-hydration
+ * script in layout.tsx reads, which keeps server markup and client state in
+ * agreement. The config is already strongly typed, so no casts are needed.
+ */
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <LayoutProvider>
       <ThemeProvider
-        brand={style.brand as Schemes}
-        accent={style.accent as Schemes}
-        neutral={style.neutral as NeutralColor}
-        solid={style.solid as SolidType}
-        solidStyle={style.solidStyle as SolidStyle}
-        border={style.border as BorderStyle}
-        surface={style.surface as SurfaceStyle}
-        transition={style.transition as TransitionStyle}
-        scaling={style.scaling as ScalingSize}
+        brand={style.brand}
+        accent={style.accent}
+        neutral={style.neutral}
+        solid={style.solid}
+        solidStyle={style.solidStyle}
+        border={style.border}
+        surface={style.surface}
+        transition={style.transition}
+        scaling={style.scaling}
       >
         <DataThemeProvider
-          variant={dataStyle.variant as ChartVariant}
-          mode={dataStyle.mode as ChartMode}
+          variant={dataStyle.variant}
+          mode={dataStyle.mode}
           height={dataStyle.height}
-          axis={{
-            stroke: dataStyle.axis.stroke,
-          }}
-          tick={{
-            fill: dataStyle.tick.fill,
-            fontSize: dataStyle.tick.fontSize,
-            line: dataStyle.tick.line,
-          }}
+          axis={dataStyle.axis}
+          tick={dataStyle.tick}
         >
           <ToastProvider>
             <IconProvider icons={iconLibrary}>{children}</IconProvider>

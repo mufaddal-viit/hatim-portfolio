@@ -47,7 +47,13 @@ export const Header = () => {
 
   return (
     <>
-      <Fade s={{ hide: true }} fillWidth position="fixed" height="80" zIndex={9} />
+      {/*
+        The desktop top fade is intentionally omitted: it painted an opaque
+        page-background band across the top of the viewport, which broke the
+        full-bleed hero. The nav pill carries its own frosted backdrop.
+        The bottom fade is kept for small screens, where the nav is docked
+        to the foot of the viewport over scrolling content.
+      */}
       <Fade
         hide
         s={{ hide: false }}
@@ -58,29 +64,30 @@ export const Header = () => {
         height="80"
         zIndex={9}
       />
+      {/* Fixed on all sizes so content can run full-bleed beneath it. */}
       <Row
         fitHeight
         className={styles.position}
-        position="sticky"
+        position="fixed"
         as="header"
         zIndex={9}
         fillWidth
         padding="8"
         horizontal="center"
         data-border="rounded"
-        s={{
-          position: "fixed",
-        }}
       >
         <Row paddingLeft="12" fillWidth vertical="center" textVariant="body-default-s">
-          {display.location && <Row s={{ hide: true }}>{person.location}</Row>}
+          {display.location && (
+            <Row className={styles.metaChip} s={{ hide: true }}>
+              {person.location}
+            </Row>
+          )}
         </Row>
         <Row fillWidth horizontal="center">
+          {/* Frosted glass pill — see .navGlass for the blur and tint. */}
           <Row
-            background="page"
-            border="neutral-alpha-weak"
+            className={styles.navGlass}
             radius="m-4"
-            shadow="l"
             padding="4"
             horizontal="center"
             zIndex={1}
@@ -184,7 +191,11 @@ export const Header = () => {
             gap="20"
           >
             <Flex s={{ hide: true }}>
-              {display.time && <TimeDisplay timeZone={person.location} />}
+              {display.time && (
+                <Flex className={styles.metaChip}>
+                  <TimeDisplay timeZone={person.location} />
+                </Flex>
+              )}
             </Flex>
           </Flex>
         </Flex>

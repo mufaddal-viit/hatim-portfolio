@@ -40,16 +40,27 @@ export type FontsConfig = {
   body: NextFontWithVariable;
   label: NextFontWithVariable;
   code: NextFontWithVariable;
+  /**
+   * Editorial display serif, applied via the `.font-display` class rather
+   * than globally. Used for oversized hero and section headlines.
+   */
+  display: NextFontWithVariable;
 };
 
 /**
  * Style customization for main layout.
  */
+/**
+ * "custom" routes a scheme to the --scheme-*-* CSS variables defined in
+ * custom.css, rather than to one of Once UI's built-in color ramps.
+ */
+export type CustomizableScheme = Schemes | "custom";
+
 export type StyleConfig = {
   theme: Theme;
   neutral: NeutralColor;
-  brand: Schemes;
-  accent: Schemes;
+  brand: CustomizableScheme;
+  accent: CustomizableScheme;
   solid: SolidType;
   solidStyle: SolidStyle;
   border: BorderStyle;

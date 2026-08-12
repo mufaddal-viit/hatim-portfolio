@@ -1,0 +1,161 @@
+@use "../breakpoints.scss" as *;
+
+/* Shared editorial primitives for the home page sections. */
+
+.displayHeading {
+  font-family: var(--font-display), Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.02;
+  font-size: clamp(2.4rem, 5.2vw, 4.4rem);
+  margin: 0;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.75rem;
+}
+
+/* Stats now render as a glass bar inside the hero — see Hero.module.scss. */
+
+/* ------------------------------------------------------------------ intro */
+
+.introMedia {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 5;
+  background: var(--neutral-background-medium);
+}
+
+.introImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/**
+ * Oversized watermark numeral, echoing the reference's faint "02".
+ * Decorative only — always paired with aria-hidden.
+ */
+.watermark {
+  position: absolute;
+  right: -0.06em;
+  bottom: -0.28em;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(7rem, 16vw, 14rem);
+  line-height: 0.8;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--neutral-alpha-medium);
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+/* --------------------------------------------------------------- services */
+
+.serviceCard {
+  border-top: 1px solid var(--neutral-alpha-medium);
+  padding-top: var(--static-space-24);
+  height: 100%;
+}
+
+.serviceIndex {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.25rem;
+  color: var(--brand-on-background-weak);
+}
+
+/* --------------------------------------------------------------- showcase */
+
+/* Matches the hero panel: the custom ramp directly, not the semantic token,
+   which resolves too pale to carry white type. */
+.showcase {
+  background: var(--scheme-brand-200, #241a14);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.eyebrowOnDark {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.showcaseBody {
+  color: rgba(255, 255, 255, 0.72);
+  max-width: 48ch;
+}
+
+.showcaseAction :global(button),
+.showcaseAction :global(a) {
+  color: rgba(255, 255, 255, 0.95);
+  border-color: rgba(255, 255, 255, 0.42);
+  background: transparent;
+}
+
+.showcaseAction :global(button:hover),
+.showcaseAction :global(a:hover) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+/* Split heading — "PORT" over "FOLIO", as in the reference. */
+.showcaseHeading {
+  font-family: var(--font-display), Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  font-size: clamp(2.8rem, 7vw, 6rem);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: var(--static-white);
+}
+
+.tile {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 3 / 4;
+  background: var(--neutral-background-medium);
+}
+
+.tileImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.tile:hover .tileImage {
+  transform: scale(1.05);
+}
+
+.tileCaption {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: var(--static-space-16);
+  background: linear-gradient(
+    to top,
+    rgba(23, 16, 12, 0.82) 0%,
+    rgba(23, 16, 12, 0) 100%
+  );
+  color: var(--static-white);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tileImage,
+  .tile:hover .tileImage {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* -------------------------------------------------------------------- cta */
+
+.cta {
+  border-top: 1px solid var(--neutral-alpha-weak);
+}
+
+@include m {
+  .introMedia {
+    aspect-ratio: 16 / 10;
+  }
+}

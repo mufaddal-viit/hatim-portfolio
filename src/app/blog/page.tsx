@@ -2,6 +2,7 @@ import { Column, Heading, Meta, Schema } from "@once-ui-system/core";
 import { Mailchimp } from "@/components";
 import { Posts } from "@/components/blog/Posts";
 import { baseURL, blog, person, newsletter } from "@/resources";
+import shared from "../shared.module.scss";
 
 export async function generateMetadata() {
   return Meta.generate({
@@ -15,7 +16,7 @@ export async function generateMetadata() {
 
 export default function Blog() {
   return (
-    <Column maxWidth="m" paddingTop="24">
+    <Column className={shared.pageInset} maxWidth="l" horizontal="center">
       <Schema
         as="blogPosting"
         baseURL={baseURL}

@@ -8,6 +8,66 @@
     mask-size: 100% 100%;
 }
 
+/**
+ * Frosted navigation pill.
+ *
+ * Replaces the previous opaque `background="page"`, which sat as a solid
+ * block over the full-bleed hero. The tint is kept low so the image reads
+ * through, while the blur and hairline highlight keep the labels legible.
+ */
+.navGlass {
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.6),
+        0 8px 32px rgba(23, 16, 12, 0.16);
+}
+
+/* Dark mode: invert the tint so the pill stays glass, not a light slab. */
+:global([data-theme="dark"]) .navGlass {
+    background: rgba(28, 20, 16, 0.5);
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+/**
+ * Location and clock chips.
+ *
+ * These sit bare over whatever the page renders behind them — on the home
+ * page that is a dark hero panel, where the default ink would vanish. A
+ * matching frosted chip keeps them readable on any background.
+ */
+.metaChip {
+    padding: 0.28rem 0.6rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: var(--neutral-on-background-strong);
+    white-space: nowrap;
+}
+
+:global([data-theme="dark"]) .metaChip {
+    background: rgba(28, 20, 16, 0.5);
+    border-color: rgba(255, 255, 255, 0.14);
+}
+
+/* Without backdrop-filter the pill must stay readable, so raise the tint. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .navGlass {
+        background: rgba(255, 255, 255, 0.9);
+    }
+
+    :global([data-theme="dark"]) .navGlass {
+        background: rgba(28, 20, 16, 0.9);
+    }
+}
+
 @media (max-width: breakpoints.$s) {
     .position {
         top: auto;
@@ -19,3 +79,6 @@
         bottom: 0;
     }
 }
+
+/* The mobile brand lockup now lives in the hero panel (Hero.module.scss),
+   in normal flow, so it scrolls away rather than following the viewport. */

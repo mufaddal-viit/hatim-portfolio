@@ -7,7 +7,7 @@ const person: Person = {
   role: "Your Role",
   avatar: "/images/avatar.jpg",
   email: "hello@example.com",
-  location: "Asia/Kolkata", // Expecting the IANA time zone identifier, e.g., 'Europe/Vienna'
+  location: "Asia/Dubai", // Expecting the IANA time zone identifier, e.g., 'Europe/Vienna'
   languages: [], // optional: Leave the array empty if you don't want to display languages
   locale: "en", // BCP 47 language tag for the HTML lang attribute, e.g., 'en', 'ja', 'zh-TW'
 };
@@ -24,22 +24,22 @@ const social: Social = [
   // Set essential: true for links you want to show on the about page
   // Remove any entry you don't need, or leave link empty to hide it
   {
-    name: "GitHub",
-    icon: "github",
-    link: "",
+    name: "Instagram",
+    icon: "instagram",
+    link: "https://www.instagram.com/",
+    essential: true,
+  },
+  {
+    name: "Pinterest",
+    icon: "pinterest",
+    link: "https://www.pinterest.com/",
     essential: true,
   },
   {
     name: "LinkedIn",
     icon: "linkedin",
-    link: "",
+    link: "https://www.linkedin.com/",
     essential: true,
-  },
-  {
-    name: "Instagram",
-    icon: "instagram",
-    link: "",
-    essential: false,
   },
   {
     name: "Email",

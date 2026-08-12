@@ -1,0 +1,653 @@
+@use "../breakpoints.scss" as *;
+
+/**
+ * Split hero: text panel on the left, photography on the right.
+ *
+ * The headline deliberately breaks out of the panel and overlaps the photo.
+ * That single overlap welds the two halves into one image and creates depth —
+ * the type reads as sitting *in front of* a room rather than beside it.
+ */
+
+.hero {
+  position: relative;
+  width: 100%;
+  /*
+   * Column split, shared with the stats bar so it can align to the photo's
+   * left edge. 0.92 / 1.08 => the panel occupies 46% of the width.
+   */
+  --panel-width: 46%;
+
+  /*
+   * Headline scale, derived from the word's length.
+   *
+   * A fixed vw size only suits one word length: tuned for "DESIGN" (6
+   * letters) it clipped "DESIGNER" (8) off the right edge. Instead the
+   * component measures the headline and sets --headline-chars, and the size
+   * is computed from it, so any word fits at any width.
+   *
+   * Playfair Display averages ~0.62em per uppercase glyph, so a word of N
+   * characters renders ~0.62 * N em wide. Targeting 66vw puts the word's
+   * end around two-thirds across — comfortably past the 46% panel edge, so
+   * the breakout reads, without running off the right of the photo.
+   *
+   * Kept in vw so it tracks the %-based column split exactly — both are
+   * fractions of the same hero width, which is what keeps the breakout
+   * stable across browser zoom.
+   */
+  --headline-chars: 6;
+  --headline-size: calc(66vw / (var(--headline-chars) * 0.62));
+  /*
+   * Exactly one viewport tall. The header is fixed and consumes no flow
+   * space, so the hero starts at y=0 and fills the screen precisely.
+   *
+   * `height` rather than `min-height` so the glass bar's absolute placement
+   * is measured against a known box and cannot be pushed below the fold.
+   * `dvh` tracks mobile browser chrome as it collapses; `vh` is the
+   * fallback for older browsers.
+   */
+  height: 100vh;
+  height: 100dvh;
+  display: grid;
+  /* Panel is narrower than the photo; the headline spans the seam. */
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  align-items: stretch;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* ----------------------------------------------------------------- panel */
+
+/**
+ * Deep espresso panel. Uses the custom ramp directly rather than a semantic
+ * token: the semantic brand-background steps resolve mid-tone, which is too
+ * pale to carry white display type.
+ */
+.panel {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* Children size to their content rather than stretching, so the headline
+     wrapper can grow past the panel edge and produce the breakout. */
+  align-items: flex-start;
+  /* Top padding clears the fixed header; the bottom reserves room for the
+     socials pinned to the panel foot. */
+  padding: var(--static-space-104) var(--static-space-40) var(--static-space-104);
+  background: var(--scheme-brand-200, #241a14);
+  color: rgba(255, 255, 255, 0.92);
+  min-width: 0;
+}
+
+/* Desktop shows the nav pill at the top, so the lockup would duplicate it. */
+.mobileBrand {
+  display: none;
+}
+
+.eyebrow {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(2.4rem, 3.4vw, 3.6rem);
+  font-style: italic;
+  letter-spacing: 0.01em;
+  opacity: 0.92;
+  /* Clears the ghost outline, which extends above the headline's cap height. */
+  margin-bottom: 0.9em;
+}
+
+/* -------------------------------------------------------------- headline */
+
+/**
+ * Wrapper is the positioning context for both the solid word and its
+ * outlined echo. `overflow: visible` is what permits the breakout.
+ */
+.headlineWrap {
+  position: relative;
+  z-index: 3;
+  overflow: visible;
+  pointer-events: none;
+  /*
+   * Shrink-to-fit so the wrapper's box matches the real glyph width. As a
+   * block it was clamped to the panel's content width, which clipped the
+   * layout box even though the text painted beyond it — the breakout was
+   * only ever visual, and impossible to position against reliably.
+   */
+  display: inline-block;
+  width: max-content;
+  /* Optical alignment: pull the cap-height flush with the eyebrow above. */
+  margin-top: -0.06em;
+  /*
+   * Both copies shift together — the wrapper is the single unit, so the
+   * outline can never fall out of register with the solid word.
+   */
+  margin-left: 0.12em;
+}
+
+/**
+ * Shared metrics for both copies of the word.
+ *
+ * The emboss only reads if the outline sits *exactly* parallel to the solid
+ * word — same size, same tracking, same font. Any difference compounds per
+ * letter, so by the sixth glyph the two are visibly out of register. These
+ * declarations are therefore identical by construction; only colour,
+ * z-index and the offset differ below.
+ */
+.headline,
+.headlineGhost {
+  margin: 0;
+  font-family: var(--font-display), Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  font-size: var(--headline-size);
+  line-height: 0.86;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.headline {
+  position: relative;
+  z-index: 2;
+  color: var(--static-white);
+  /* Lifts the glyphs off the photograph so they stay legible. */
+  text-shadow: 0 2px 28px rgba(0, 0, 0, 0.42);
+}
+
+/**
+ * The embossed echo: an identical outlined copy, offset up and left.
+ * Transparent fill + text-stroke makes it read as carved into the surface.
+ * aria-hidden — it is pure decoration and must not be announced twice.
+ */
+.headlineGhost {
+  position: absolute;
+  /*
+   * Pure translation — same glyphs, shifted. Because the size and tracking
+   * match exactly, every letter of the outline stays parallel to its solid
+   * counterpart across the whole word.
+   */
+  left: 0;
+  top: 0;
+  transform: translate(-0.055em, -0.10em);
+  z-index: 1;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.42);
+  opacity: 0.9;
+  user-select: none;
+}
+
+.lede {
+  max-width: 32ch;
+  margin-top: var(--static-space-24);
+  color: rgba(255, 255, 255, 0.72);
+}
+
+/**
+ * Action + socials row.
+ *
+ * On desktop the socials are lifted out to the panel foot (see .socials),
+ * so this behaves as a plain block holding just the button.
+ */
+.panelFooter {
+  margin-top: var(--static-space-24);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--static-space-16);
+  /* The panel aligns children to flex-start, so this must claim full width
+     for the mobile space-between (button left, socials right) to work. */
+  align-self: stretch;
+}
+
+.actions {
+  flex: 0 0 auto;
+}
+
+/* Label + arrow, kept on one baseline inside the button. */
+.actionInner {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--static-space-8);
+}
+
+/**
+ * Up arrow that rotates a quarter turn clockwise on hover, ending pointing
+ * right. The transform is on the SVG rather than the button so the label
+ * stays put while the arrow turns.
+ */
+.actionArrow {
+  width: 1em;
+  height: 1em;
+  flex: 0 0 auto;
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.actions :global(button):hover .actionArrow,
+.actions :global(a):hover .actionArrow,
+.actions :global(button):focus-visible .actionArrow,
+.actions :global(a):focus-visible .actionArrow {
+  transform: rotate(90deg);
+}
+
+/* Users who prefer reduced motion get the end state without the sweep. */
+@media (prefers-reduced-motion: reduce) {
+  .actionArrow {
+    transition: none;
+  }
+}
+
+/*
+ * The secondary Button resolves to dark ink for a light page, which is
+ * invisible on the espresso panel. Restate it as an outlined light button.
+ */
+.actions :global(button),
+.actions :global(a) {
+  color: rgba(255, 255, 255, 0.95);
+  border-color: rgba(255, 255, 255, 0.42);
+  background: transparent;
+}
+
+.actions :global(button:hover),
+.actions :global(a:hover) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+/* Pinned to the panel foot. The stats bar no longer extends over the panel,
+   so these can sit low without colliding with it. */
+.socials {
+  position: absolute;
+  left: var(--static-space-40);
+  bottom: var(--static-space-56);
+}
+
+/* Ghost-button icons default to dark ink; force them light on the panel. */
+.socials :global(button),
+.socials :global(a) {
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.socials :global(button:hover),
+.socials :global(a:hover) {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* ----------------------------------------------------------------- media */
+
+.media {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--neutral-background-medium);
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 900ms ease, transform 1400ms ease;
+  transform: scale(1.04);
+  will-change: opacity, transform;
+}
+
+.slideActive {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.slideImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/**
+ * Scrim under the headline's overhang. Without it the white serif can land
+ * on a bright window or wall and lose contrast.
+ */
+.mediaScrim {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  /*
+   * Two layers: a strong left-edge falloff carrying the headline overhang,
+   * plus a base tint so bright windows never blow out the white type.
+   */
+  background:
+    linear-gradient(
+      90deg,
+      rgba(23, 16, 12, 0.82) 0%,
+      rgba(23, 16, 12, 0.44) 14%,
+      rgba(23, 16, 12, 0.12) 32%,
+      rgba(23, 16, 12, 0) 52%
+    ),
+    /* Slight foot tint keeps the counter and controls readable. */
+    linear-gradient(
+      180deg,
+      rgba(23, 16, 12, 0) 62%,
+      rgba(23, 16, 12, 0.34) 100%
+    );
+}
+
+/**
+ * Slide controls: counter, progress rule and arrows grouped at the bottom
+ * left of the photo, sitting below the stats bar.
+ */
+.slideNav {
+  position: absolute;
+  z-index: 6;
+  /* Aligned to the photo's left edge, matching the stats bar above it. */
+  left: calc(var(--panel-width) + var(--static-space-32));
+  bottom: var(--static-space-16);
+  display: flex;
+  align-items: center;
+  gap: var(--static-space-20);
+}
+
+.counter {
+  display: flex;
+  align-items: center;
+  gap: var(--static-space-16);
+  color: var(--static-white);
+}
+
+.counterNum {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.5rem;
+  letter-spacing: 0.06em;
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.5);
+}
+
+.counterTrack {
+  position: relative;
+  width: 84px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.34);
+}
+
+.counterFill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--static-white);
+  transition: width 500ms ease;
+}
+
+/* Arrow pair, sitting inside .slideNav beside the counter. */
+.controls {
+  display: flex;
+  gap: var(--static-space-8);
+}
+
+/*
+ * Hairline outlined arrows. The default secondary button resolves to dark
+ * ink on a light fill, which reads as a heavy chip over photography — this
+ * restates them as thin bordered glass, matching the stats bar's treatment.
+ */
+.controls :global(button) {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: background 200ms ease, border-color 200ms ease;
+}
+
+.controls :global(button:hover) {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.68);
+}
+
+/* --------------------------------------------------------- glass stat bar */
+
+/**
+ * Frosted statistics bar floating over the foot of the hero image.
+ *
+ * Spans the full hero (both panel and photo) and sits above the headline's
+ * z-layer, so it reads as a pane of glass laid across the whole composition.
+ * Inset from the bottom so the hero image still breathes beneath it.
+ */
+.statsBar {
+  position: absolute;
+  z-index: 5;
+  /*
+   * Starts at the photo's left edge rather than spanning the whole hero —
+   * the glass only makes sense over imagery, and on the flat panel it read
+   * as an arbitrary band.
+   */
+  left: calc(var(--panel-width) + var(--static-space-32));
+  right: var(--static-space-48);
+  /* Raised to leave room for the slide controls tucked beneath it. */
+  bottom: var(--static-space-80);
+
+  /* <dl> ships with a UA margin that would offset the absolute placement. */
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+
+  /* The glass itself. The translucent white and hairline edge are what sell
+     the material — a flat blur alone reads as plastic. */
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  /* A hairline all round defines the pane's edge without reading as a card
+     border — kept faint so it catches light rather than drawing a box. */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  box-shadow: 0 18px 50px rgba(23, 16, 12, 0.22);
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--static-space-4);
+  padding: var(--static-space-20) var(--static-space-20);
+  min-width: 0;
+  /* Hairline dividers between cells, drawn only between items. */
+  border-left: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.statItem:first-child {
+  border-left: none;
+}
+
+.statValue {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(1.6rem, 2.4vw, 2.4rem);
+  line-height: 1;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.97);
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.3);
+}
+
+.statLabel {
+  /* <dd> also carries a UA margin-inline-start. */
+  margin: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.76);
+}
+
+/* ------------------------------------------------------------ responsive */
+
+/**
+ * Below `m` the split collapses to a single column. The breakout has no
+ * second half to cross, so the ghost echo is dropped — at narrow widths it
+ * only muddies the headline.
+ */
+@include m {
+  .hero {
+    grid-template-columns: 1fr;
+    /* Stacked, the two halves need more than one screen. */
+    height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  /* The lockup is in normal flow now, so no extra top padding is needed. */
+  .panel {
+    padding: var(--static-space-24) var(--static-space-24) var(--static-space-40);
+  }
+
+  /* Centred above the eyebrow, scrolling with the panel. */
+  .mobileBrand {
+    display: flex;
+    justify-content: center;
+    align-self: stretch;
+    margin-bottom: var(--static-space-40);
+  }
+
+  /*
+   * Socials return to normal flow, right-aligned opposite the button — the
+   * reference layout. Absolute positioning is only correct for the tall
+   * desktop panel, where they detach to the foot.
+   */
+  .socials {
+    position: static;
+    margin: 0;
+    flex: 0 0 auto;
+  }
+
+  /*
+   * Stacked, the word has the full width to itself, so the scale is reset
+   * here. Both copies still derive from --headline-size, so they stay
+   * locked together at every width and zoom level. `nowrap` keeps DESIGN
+   * on one line — the emboss only reads when the copies align exactly.
+   */
+  /*
+   * Stacked, the word has the full column to itself rather than breaking
+   * across a seam. Targets 76vw rather than filling the column: at 88vw the
+   * word sat flush against the panel padding, and Playfair's R and G have
+   * strokes that overhang their advance width, so the final letter looked
+   * cut off even though the layout box fitted. The margin also leaves room
+   * for the ghost echo, which is offset outward.
+   */
+  .hero {
+    --headline-size: calc(76vw / (var(--headline-chars) * 0.62));
+  }
+
+  .headline {
+    white-space: nowrap;
+    text-shadow: none;
+  }
+
+  /* Kept on mobile per the reference: the outlined echo sits behind the
+     headline, slightly larger and offset, reading as embossed. */
+  /* Same translation approach as desktop, just a slightly tighter offset —
+     the two copies stay locked because they share every metric. */
+  .headlineGhost {
+    display: block;
+    transform: translate(-0.04em, -0.08em);
+    opacity: 0.75;
+  }
+
+  /*
+   * Stacked, there is no photo beside the panel for the echo to bleed onto,
+   * so it is clipped at the panel edge rather than trailing into space.
+   */
+  .panel {
+    overflow: hidden;
+  }
+
+  .media {
+    min-height: 58vh;
+  }
+
+  /**
+   * The stacked stats bar occupies the bottom-left, so the counter moves to
+   * the top of the photo and the controls sit clear on the right, above the
+   * floating mobile nav.
+   */
+  /* Reset the desktop's photo-column offset — stacked, there is no side-by
+     -side split to align to. */
+  /*
+   * Stacked, the stats panel occupies the bottom-left, so the slide nav
+   * moves to the top-right of the photo where nothing competes with it.
+   */
+  .slideNav {
+    left: auto;
+    right: var(--static-space-16);
+    top: var(--static-space-16);
+    bottom: auto;
+  }
+
+  /**
+   * Stacked vertically and left-aligned, per the brief. The bar stops being
+   * a full-width pane and becomes a compact panel hugging the left edge, so
+   * it never crowds the photo on a narrow screen.
+   */
+  .statsBar {
+    left: var(--static-space-16);
+    right: auto;
+    bottom: var(--static-space-80);
+    width: max-content;
+    max-width: calc(100% - (2 * var(--static-space-16)));
+    grid-template-columns: 1fr;
+    /*
+     * A stacked panel covers far more of the photo than the desktop strip,
+     * and mobile photos are often bright, so the tint is raised to keep the
+     * labels legible rather than washing out.
+     */
+    background: rgba(23, 16, 12, 0.42);
+    border-radius: 3px;
+  }
+
+  /* Short viewports: trim the bar so it clears the docked nav pill. */
+  @media (max-height: 760px) {
+    .statItem {
+      padding: var(--static-space-8) var(--static-space-16);
+    }
+
+    .statValue {
+      font-size: 1.1rem;
+    }
+  }
+
+  .statItem {
+    /* Dividers run horizontally once the cells stack. */
+    border-left: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
+    padding: var(--static-space-12) var(--static-space-20);
+  }
+
+  .statItem:first-child {
+    border-top: none;
+  }
+
+  .statValue {
+    font-size: 1.35rem;
+  }
+
+  .statLabel {
+    font-size: 0.72rem;
+  }
+
+  .mediaScrim {
+    background: linear-gradient(
+      180deg,
+      rgba(23, 16, 12, 0.4) 0%,
+      rgba(23, 16, 12, 0) 45%
+    );
+  }
+}
+
+/**
+ * Fallback for browsers without backdrop-filter (older Firefox). Declared
+ * last so it overrides the tints set in the breakpoint blocks above —
+ * without a blur the bar would otherwise be near-invisible over the photo.
+ */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .statsBar {
+    background: rgba(36, 26, 20, 0.82);
+  }
+}
+
+/* Honour reduced-motion: cross-fade without the Ken Burns drift. */
+@media (prefers-reduced-motion: reduce) {
+  .slide {
+    transition: opacity 200ms linear;
+    transform: none;
+  }
+
+  .slideActive {
+    transform: none;
+  }
+}

@@ -1,7 +1,5 @@
 import {
-  DataStyleConfig,
   DisplayConfig,
-  EffectsConfig,
   FontsConfig,
   MailchimpConfig,
   ProtectedRoutesConfig,
@@ -9,9 +7,13 @@ import {
   SameAsConfig,
   SchemaConfig,
   SocialSharingConfig,
-  StyleConfig,
 } from "@/types";
 import { home, person, social } from "./content";
+
+// Visual theme lives in theme.config.ts — the single source of truth for
+// colors, effects and chart styling. Re-exported here so existing imports
+// from "@/resources" keep working.
+import { dataStyle, effects, style } from "./theme.config";
 
 // IMPORTANT: Replace with your own domain address - it's used for SEO in meta tags and schema
 const baseURL: string = "http://localhost:3000";
@@ -38,6 +40,7 @@ const protectedRoutes: ProtectedRoutesConfig = {};
 // Import and set font for each variant
 import { Geist } from "next/font/google";
 import { Geist_Mono } from "next/font/google";
+import { Playfair_Display } from "next/font/google";
 
 const heading = Geist({
   variable: "--font-heading",
@@ -63,80 +66,21 @@ const code = Geist_Mono({
   display: "swap",
 });
 
+// High-contrast serif for oversized editorial headlines.
+// Applied through the .font-display class, not as a global default.
+const displaySerif = Playfair_Display({
+  variable: "--font-display",
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
+});
+
 const fonts: FontsConfig = {
   heading: heading,
   body: body,
   label: label,
   code: code,
-};
-
-// default customization applied to the HTML in the main layout.tsx
-const style: StyleConfig = {
-  theme: "system", // dark | light | system
-  neutral: "gray", // sand | gray | slate | mint | rose | dusk | custom
-  brand: "cyan", // blue | indigo | violet | magenta | pink | red | orange | yellow | moss | green | emerald | aqua | cyan | custom
-  accent: "red", // blue | indigo | violet | magenta | pink | red | orange | yellow | moss | green | emerald | aqua | cyan | custom
-  solid: "contrast", // color | contrast
-  solidStyle: "flat", // flat | plastic
-  border: "playful", // rounded | playful | conservative | sharp
-  surface: "translucent", // filled | translucent
-  transition: "all", // all | micro | macro
-  scaling: "100", // 90 | 95 | 100 | 105 | 110
-};
-
-const dataStyle: DataStyleConfig = {
-  variant: "gradient", // flat | gradient | outline
-  mode: "categorical", // categorical | divergent | sequential
-  height: 24, // default chart height
-  axis: {
-    stroke: "var(--neutral-alpha-weak)",
-  },
-  tick: {
-    fill: "var(--neutral-on-background-weak)",
-    fontSize: 11,
-    line: false,
-  },
-};
-
-const effects: EffectsConfig = {
-  mask: {
-    cursor: false,
-    x: 50,
-    y: 0,
-    radius: 100,
-  },
-  gradient: {
-    display: false,
-    opacity: 100,
-    x: 50,
-    y: 60,
-    width: 100,
-    height: 50,
-    tilt: 0,
-    colorStart: "accent-background-strong",
-    colorEnd: "page-background",
-  },
-  dots: {
-    display: true,
-    opacity: 40,
-    size: "2",
-    color: "brand-background-strong",
-  },
-  grid: {
-    display: false,
-    opacity: 100,
-    color: "neutral-alpha-medium",
-    width: "0.25rem",
-    height: "0.25rem",
-  },
-  lines: {
-    display: false,
-    opacity: 100,
-    color: "neutral-alpha-weak",
-    size: "16",
-    thickness: 1,
-    angle: 45,
-  },
+  display: displaySerif,
 };
 
 const mailchimp: MailchimpConfig = {
@@ -225,10 +169,11 @@ export {
   protectedRoutes,
   baseURL,
   fonts,
-  style,
   schema,
   sameAs,
   socialSharing,
-  effects,
-  dataStyle,
 };
+
+// Re-exported for convenience so `@/resources/once-ui.config` callers still
+// resolve theme values. Defined in and owned by ./theme.config.
+export { style, effects, dataStyle };

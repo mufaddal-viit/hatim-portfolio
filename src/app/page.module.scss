@@ -1,0 +1,34 @@
+@use "../components/breakpoints.scss" as *;
+
+/**
+ * The root layout applies no padding, so the home page runs edge to edge
+ * with no negative-margin compensation. Each section owns its own gutters.
+ */
+.page {
+  width: 100%;
+  max-width: none;
+}
+
+/**
+ * Inner sections: full width, with gutters that scale to the viewport.
+ * `max-width` is deliberately generous — the brief is full width on large
+ * screens — while the cap stops line lengths becoming unreadable on
+ * ultra-wide displays.
+ */
+.content {
+  width: 100%;
+  max-width: 1680px;
+  padding-inline: var(--static-space-40);
+}
+
+@include m {
+  .content {
+    padding-inline: var(--static-space-24);
+  }
+}
+
+@include s {
+  .content {
+    padding-inline: var(--static-space-16);
+  }
+}

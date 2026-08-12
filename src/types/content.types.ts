@@ -110,6 +110,115 @@ export interface Home extends BasePageConfig {
 }
 
 /**
+ * A single hero slideshow image.
+ */
+export type HeroSlide = {
+  /** Path under /public, e.g. "/images/interior/hero-01.jpg" */
+  src: `/images/${string}` | string;
+  /** Describe the room, not the file — this is read aloud by screen readers. */
+  alt: string;
+};
+
+/**
+ * Split hero section on the home page.
+ *
+ * `headline` is a plain string rather than a ReactNode: it is rendered twice
+ * (once solid, once as the outlined echo behind it) and the echo must be an
+ * exact copy for the emboss effect to line up.
+ */
+export type HeroContent = {
+  /** Small italic line above the headline, e.g. "Interior". */
+  eyebrow: string;
+  /** The oversized display word that breaks across the panel edge. */
+  headline: string;
+  /** Short supporting paragraph inside the panel. */
+  lede: string;
+  /** Primary call to action. Omit `href` to hide the button. */
+  action: {
+    label: string;
+    href: string;
+  };
+  /** Slideshow images. One slide renders as a static photo. */
+  slides: HeroSlide[];
+  /** Social links shown at the foot of the panel. */
+  socials: Array<{
+    name: string;
+    icon: IconName;
+    link: string;
+  }>;
+};
+
+/**
+ * A statistic in the band beneath the hero.
+ */
+export type HomeStat = {
+  /** Large figure, e.g. "120+". */
+  value: string;
+  /** Short caption beneath the figure. */
+  label: string;
+};
+
+/**
+ * A service / capability card on the home page.
+ */
+export type HomeService = {
+  /** Two-digit index rendered as an editorial numeral, e.g. "01". */
+  index: string;
+  title: string;
+  description: string;
+};
+
+/**
+ * Home page section content, kept separate from `Home` (SEO/meta) so page
+ * copy and metadata can evolve independently.
+ */
+export type HomeSections = {
+  hero: HeroContent;
+  stats: {
+    display: boolean;
+    items: HomeStat[];
+  };
+  intro: {
+    display: boolean;
+    /** Small label above the section heading. */
+    eyebrow: string;
+    /** Rendered in the display serif. */
+    heading: string;
+    body: string[];
+    image: {
+      src: `/images/${string}` | string;
+      alt: string;
+    };
+  };
+  services: {
+    display: boolean;
+    eyebrow: string;
+    heading: string;
+    items: HomeService[];
+  };
+  showcase: {
+    display: boolean;
+    eyebrow: string;
+    /** Split across two lines in the reference ("PORT" / "FOLIO"). */
+    heading: string;
+    description: string;
+    action: { label: string; href: string };
+    images: Array<{
+      src: `/images/${string}` | string;
+      alt: string;
+      caption: string;
+      meta: string;
+    }>;
+  };
+  cta: {
+    display: boolean;
+    heading: string;
+    description: string;
+    action: { label: string; href: string };
+  };
+};
+
+/**
  * About page configuration.
  * @description Configuration for the About page, including sections for table of contents, avatar, calendar, introduction, work experience, studies, and technical skills.
  */

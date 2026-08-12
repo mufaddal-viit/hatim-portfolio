@@ -1,0 +1,22 @@
+@use "../components/breakpoints.scss" as *;
+
+/**
+ * Standard inner-page shell.
+ *
+ * The root layout no longer applies padding — full-bleed pages need the
+ * edges — so ordinary content pages opt into gutters and a readable max
+ * width here instead. Keeps every non-home route visually consistent.
+ */
+.pageInset {
+  width: 100%;
+  padding-inline: var(--static-space-32);
+  /* Clears the floating header. */
+  padding-block: var(--static-space-80) var(--static-space-64);
+}
+
+@include s {
+  .pageInset {
+    padding-inline: var(--static-space-16);
+    padding-block: var(--static-space-64) var(--static-space-40);
+  }
+}

@@ -15,6 +15,7 @@ import {
 import { baseURL, about, person, social } from "@/resources";
 import TableOfContents from "@/components/about/TableOfContents";
 import styles from "@/components/about/about.module.scss";
+import shared from "../shared.module.scss";
 import React from "react";
 
 export async function generateMetadata() {
@@ -51,7 +52,7 @@ export default function About() {
     },
   ];
   return (
-    <Column maxWidth="m">
+    <Column className={shared.pageInset} maxWidth="l" horizontal="center">
       <Schema
         as="webPage"
         baseURL={baseURL}
