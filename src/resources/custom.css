@@ -41,3 +41,99 @@
   font-weight: 500;
   letter-spacing: -0.02em;
 }
+
+/* ---------------------------------------------------------------------------
+ * SCROLL REVEAL
+ * ---------------------------------------------------------------------------
+ * Driven by <Reveal> (src/components/Reveal.tsx), which adds `data-reveal` to
+ * a section and `data-reveal-shown` once it enters the viewport. All of the
+ * motion lives here rather than in the component, so timing can be tuned in
+ * one place.
+ *
+ * Global rather than a CSS module on purpose: the <noscript> override in the
+ * root layout has to be able to target these selectors, which hashed module
+ * class names would make impossible.
+ *
+ * The curve is a long ease-out (0.16, 1, 0.3, 1) — almost all of the distance
+ * is covered early and the last few pixels settle slowly, which is what makes
+ * a fade read as considered rather than mechanical. No bounce, no overshoot.
+ *
+ * The rise is deliberately small. A large travel turns a page into a series of
+ * things flying in; 20px reads as the section settling into place.
+ * ------------------------------------------------------------------------- */
+
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 900ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  /* Hint only while the element is still waiting; dropped once revealed so a
+     long page does not hold dozens of promoted layers. */
+  will-change: opacity, transform;
+}
+
+[data-reveal][data-reveal-shown] {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+/*
+ * Sequenced children inside an already-revealing section: cards, tiles, list
+ * items. Each sets --reveal-i to its position, so the row resolves left to
+ * right instead of snapping in as one block.
+ *
+ * The base 120ms offset lets the section itself begin moving first, so the
+ * children read as arriving with it rather than racing it.
+ *
+ * Driven by an animation rather than a transition, and by `translate` rather
+ * than `transform`, to stay out of the way of the elements being revealed.
+ * The service cards and showcase tiles already own a `transform` hover lift
+ * and a `transition` of their own; a reveal built on those two properties
+ * would win on specificity and permanently pin `transform: none`, killing the
+ * hover. `animation` + `translate` compose with both instead of replacing
+ * them.
+ *
+ * `both` fill mode holds the start frame through the stagger delay and the
+ * end frame afterwards, so nothing flashes before or after.
+ */
+[data-reveal] [data-reveal-child] {
+  opacity: 0;
+}
+
+[data-reveal][data-reveal-shown] [data-reveal-child] {
+  animation: reveal-rise 760ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(120ms + (var(--reveal-i, 0) * 90ms));
+}
+
+@keyframes reveal-rise {
+  from {
+    opacity: 0;
+    translate: 0 16px;
+  }
+  to {
+    opacity: 1;
+    translate: none;
+  }
+}
+
+/*
+ * Reduced motion: no travel, no stagger. The component already skips the
+ * observer in this case and shows content immediately, but the rule is
+ * restated here so the hidden state can never be painted even for the frame
+ * before hydration.
+ */
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal],
+  [data-reveal] [data-reveal-child],
+  [data-reveal][data-reveal-shown] [data-reveal-child] {
+    opacity: 1;
+    transform: none;
+    translate: none;
+    transition: none;
+    animation: none;
+    will-change: auto;
+  }
+}

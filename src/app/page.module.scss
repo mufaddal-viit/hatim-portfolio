@@ -21,6 +21,15 @@
   padding-inline: var(--static-space-40);
 }
 
+/**
+ * Wrapper <Reveal> renders around each section. It must be transparent to the
+ * layout — the sections below it own their own gutters and, in the showcase's
+ * case, a full-bleed background — so it contributes width and nothing else.
+ */
+.revealBlock {
+  width: 100%;
+}
+
 @include m {
   .content {
     padding-inline: var(--static-space-24);

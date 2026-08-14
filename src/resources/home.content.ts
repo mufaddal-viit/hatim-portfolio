@@ -57,15 +57,29 @@ export const homeSections: HomeSections = {
 
   intro: {
     display: true,
-    eyebrow: "About us",
+    eyebrow: "My Story",
     heading: "Spaces shaped around the way you actually live",
+    /*
+     * The first two paragraphs set the centre column, beneath the heading;
+     * everything after them moves to the right-hand column above the second
+     * photograph. Reordering this array reflows the section.
+     */
     body: [
       `We are a design company with a lot of experience. We have been engaged in interior design for more than 10 years — we always want for the end to find a solution for the space, and cater simply by virtue of vital importance.`,
+      `No two homes ask the same questions. We begin by watching how a room is actually used — where the morning light lands, which corner everyone gravitates to, what never gets touched — and let those answers set the plan long before a finish is chosen.`,
       `From concept to final handover, every project is treated as a single continuous conversation: proportion, light, material and detail resolved together rather than in isolation.`,
     ],
     image: {
       src: "/images/interior/detail-01.jpg",
       alt: "Close detail of a styled console table with ceramics and dried stems",
+    },
+    secondaryImage: {
+      src: "/images/interior/space-02.jpg",
+      alt: "Oak-panelled bedroom at dusk, linen bedding turned down under a low lamp",
+    },
+    action: {
+      label: "More about the studio",
+      href: "/about",
     },
   },
 
@@ -76,19 +90,25 @@ export const homeSections: HomeSections = {
     items: [
       {
         index: "01",
-        title: "Quality",
+        title: "Architecture",
         description:
           "Feel the comfort of our furniture for yourself. Every specification is chosen for how it wears, not just how it photographs.",
       },
       {
         index: "02",
-        title: "Beauty",
+        title: "Design-Build",
         description:
           "Unique design and interesting interior solutions, developed around the proportions and light of your particular space.",
       },
       {
         index: "03",
-        title: "Delivery",
+        title: "Interiors",
+        description:
+          "We develop the design project, coordinate the redevelopment and perform turnkey finishing works, complete with materials and furniture.",
+      },
+      {
+        index: "04",
+        title: "Project Management",
         description:
           "We develop the design project, coordinate the redevelopment and perform turnkey finishing works, complete with materials and furniture.",
       },
@@ -105,30 +125,38 @@ export const homeSections: HomeSections = {
       label: "View all projects",
       href: "/work",
     },
+    /*
+     * `slug` must match an MDX filename in src/app/work/projects — each tile
+     * links to /work/<slug>.
+     */
     images: [
       {
         src: "/images/interior/space-01.jpg",
         alt: "Sunlit living room with tan leather sofa and a gallery wall",
         caption: "Apartment on the Hill",
         meta: "Residential — 2024",
+        slug: "apartment-on-the-hill",
       },
       {
         src: "/images/interior/space-02.jpg",
         alt: "Minimal bedroom with warm oak panelling and soft linen bedding",
         caption: "House in Regina",
         meta: "Residential — 2024",
+        slug: "house-in-regina",
       },
       {
         src: "/images/interior/space-03.jpg",
         alt: "Open-plan kitchen and dining space with pale stone surfaces",
         caption: "Riverside Residence",
         meta: "Residential — 2023",
+        slug: "riverside-residence",
       },
       {
         src: "/images/interior/space-04.jpg",
         alt: "Study nook with built-in shelving and a wide picture window",
         caption: "Garden Studio",
         meta: "Workspace — 2023",
+        slug: "garden-studio",
       },
     ],
   },

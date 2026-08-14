@@ -47,6 +47,15 @@ export default async function RootLayout({
     >
       <head>
         <ThemeInitScript />
+        {/*
+          Scroll reveals start hidden and are un-hidden by <Reveal>, which
+          needs JavaScript to mount. Without this the whole page below the
+          hero would render blank for anyone with scripting disabled, and for
+          crawlers that do not execute JS.
+        */}
+        <noscript>
+          <style>{`[data-reveal],[data-reveal] [data-reveal-child]{opacity:1!important;transform:none!important;translate:none!important}`}</style>
+        </noscript>
       </head>
       <Providers>
         <Column

@@ -18,6 +18,14 @@
   --panel-width: 46%;
 
   /*
+   * Single source of truth for the panel's surface color. The media column,
+   * the slide mask and the scrim all key off it, which is what makes the
+   * panel→photo transition read as one continuous material: the photo
+   * dissolves into *this exact color*, never a near-miss of it.
+   */
+  --hero-panel: var(--scheme-brand-200, #241a14);
+
+  /*
    * Headline scale, derived from the word's length.
    *
    * A fixed vw size only suits one word length: tuned for "DESIGN" (6
@@ -74,9 +82,116 @@
   /* Top padding clears the fixed header; the bottom reserves room for the
      socials pinned to the panel foot. */
   padding: var(--static-space-104) var(--static-space-40) var(--static-space-104);
-  background: var(--scheme-brand-200, #241a14);
+  background: var(--hero-panel);
   color: rgba(255, 255, 255, 0.92);
   min-width: 0;
+}
+
+/* ------------------------------------------------- panel wallpaper (SVG) */
+
+/**
+ * Hand-drawn scribble wallpaper embossed into the espresso panel.
+ *
+ * herobackdrop.svg ships with black fills, so it is never drawn directly —
+ * it is used as an alpha *mask* over a painted box, and the ink becomes
+ * whatever that box paints. A black asset therefore renders as warm cream on
+ * espresso with no edit to the file.
+ *
+ * Two pseudo-elements draw the same field twice, one shade offset from the
+ * other, so the strokes read as pressed into the panel rather than printed
+ * on top: ::before lays a dark impression, ::after a cream highlight nudged
+ * up and left. That is deliberately the same optical trick as .headlineGhost
+ * above, at a whisper of its contrast — the panel gets one embossing
+ * language rather than two unrelated decorative ideas.
+ *
+ * Both sit at z-index -1. The panel establishes a stacking context (position
+ * + z-index: 2), so a negative index keeps them inside it, above the panel's
+ * own background but beneath every line of type. Painting order alone would
+ * not do this: a positioned pseudo-element at z-index auto paints *above*
+ * non-positioned inline content, which would put scribbles over the copy.
+ */
+.panel::before,
+.panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+
+  -webkit-mask-image: url("/SVGs/herobackdrop.svg"), url("/SVGs/herobackdrop.svg");
+  mask-image: url("/SVGs/herobackdrop.svg"), url("/SVGs/herobackdrop.svg");
+  -webkit-mask-repeat: repeat, repeat;
+  mask-repeat: repeat, repeat;
+  /*
+   * A large field with a near-half-scale field laid over it. Mask layers
+   * composite additively, so the result is their union; one tile alone reads
+   * as a repeating stamp, while two at unrelated scales and off-grid offsets
+   * read as a drawn surface. The sizes share no small common factor, so the
+   * combined motif does not visibly repeat within the panel.
+   */
+  -webkit-mask-size: 420px 420px, 190px 190px;
+  mask-size: 420px 420px, 190px 190px;
+}
+
+/**
+ * Shared shape for both impressions: a clearing over the type, texture
+ * blooming toward the panel's edges.
+ *
+ * The radial is transparent through the middle-left — exactly where the
+ * eyebrow, headline, lede and button live — so the wallpaper never sits
+ * behind running copy and costs it contrast. It rises to full strength
+ * across the top, foot and outer corners, which is the empty space this is
+ * here to furnish, then eases back at the extreme edge so the field fades
+ * out instead of stopping against the seam.
+ */
+.panel::before {
+  /* Dark impression: the recess. Black rather than a hue, so it reads as
+     absence of light on the espresso rather than a second color. */
+  background-image: radial-gradient(
+    130% 88% at 16% 48%,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0) 34%,
+    rgba(0, 0, 0, 0.08) 52%,
+    rgba(0, 0, 0, 0.2) 76%,
+    rgba(0, 0, 0, 0.22) 90%,
+    rgba(0, 0, 0, 0.12) 100%
+  );
+  -webkit-mask-position: -50px -35px, 132px 86px;
+  mask-position: -50px -35px, 132px 86px;
+}
+
+.panel::after {
+  /* Cream highlight: the lit edge of the impression. Keyed to the panel's
+     warm family — pure white would read cold and lift off the surface. */
+  background-image: radial-gradient(
+    130% 88% at 16% 48%,
+    rgba(242, 231, 219, 0) 0%,
+    rgba(242, 231, 219, 0) 34%,
+    rgba(242, 231, 219, 0.04) 52%,
+    rgba(242, 231, 219, 0.11) 76%,
+    rgba(242, 231, 219, 0.12) 90%,
+    rgba(242, 231, 219, 0.06) 100%
+  );
+  /*
+   * The emboss offset: 1.5px up and left of the dark impression, matching
+   * the direction .headlineGhost is displaced. Sub-pixel on purpose — at
+   * these hairline stroke widths a full pixel reads as a doubled line
+   * instead of relief.
+   */
+  -webkit-mask-position: -51.5px -36.5px, 130.5px 84.5px;
+  mask-position: -51.5px -36.5px, 130.5px 84.5px;
+}
+
+/*
+ * Without mask support the painted boxes would flood the panel with flat
+ * gradients, burying the copy. Drop them entirely; the panel returns to the
+ * plain espresso it was before.
+ */
+@supports not ((mask-image: linear-gradient(#000, #000)) or (-webkit-mask-image: linear-gradient(#000, #000))) {
+  .panel::before,
+  .panel::after {
+    display: none;
+  }
 }
 
 /* Desktop shows the nav pill at the top, so the lockup would duplicate it. */
@@ -276,27 +391,65 @@
   z-index: 1;
   min-width: 0;
   overflow: hidden;
-  background: var(--neutral-background-medium);
+  /*
+   * The ground the masked slides dissolve into. Must be the panel's own
+   * color — this is one half of the seamless blend (the mask below is the
+   * other). Also the loading state, so an undecoded image shows espresso
+   * rather than a gray flash.
+   */
+  background: var(--hero-panel);
 }
 
+/**
+ * Each slide fades out at its left edge via an alpha mask, revealing the
+ * panel-colored ground beneath. Blending with a mask rather than painting a
+ * gradient *over* the photo means the seam color is the panel color by
+ * construction — the two halves cannot drift apart.
+ *
+ * The stops approximate an ease-out curve; a two-stop linear fade leaves a
+ * visible "gradient edge" where it ends.
+ *
+ * The mask lives here while the Ken Burns transform lives on the image
+ * inside, so the dissolve edge stays fixed while the photo drifts under it.
+ */
 .slide {
   position: absolute;
   inset: 0;
   opacity: 0;
-  transition: opacity 900ms ease, transform 1400ms ease;
-  transform: scale(1.04);
-  will-change: opacity, transform;
+  transition: opacity 900ms cubic-bezier(0.33, 0, 0.2, 1);
+  will-change: opacity;
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.22) 7%,
+    rgba(0, 0, 0, 0.58) 15%,
+    rgba(0, 0, 0, 0.87) 23%,
+    #000 32%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.22) 7%,
+    rgba(0, 0, 0, 0.58) 15%,
+    rgba(0, 0, 0, 0.87) 23%,
+    #000 32%
+  );
 }
 
 .slideActive {
   opacity: 1;
-  transform: scale(1);
 }
 
 .slideImage {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transform: scale(1.04);
+  transition: transform 1400ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.slideActive .slideImage {
+  transform: scale(1);
 }
 
 /**
@@ -309,23 +462,49 @@
   z-index: 2;
   pointer-events: none;
   /*
-   * Two layers: a strong left-edge falloff carrying the headline overhang,
-   * plus a base tint so bright windows never blow out the white type.
+   * Two layers: a left-edge falloff carrying the headline overhang past the
+   * mask's dissolve zone, plus a foot tint for the counter and controls.
+   *
+   * Both are mixed from the panel token itself (not a hardcoded near-miss of
+   * it) so the darkened photo and the panel share one hue — the eye reads a
+   * single material deepening, not two tints meeting.
    */
   background:
     linear-gradient(
       90deg,
-      rgba(23, 16, 12, 0.82) 0%,
-      rgba(23, 16, 12, 0.44) 14%,
-      rgba(23, 16, 12, 0.12) 32%,
-      rgba(23, 16, 12, 0) 52%
+      color-mix(in srgb, var(--hero-panel) 55%, transparent) 0%,
+      color-mix(in srgb, var(--hero-panel) 30%, transparent) 22%,
+      color-mix(in srgb, var(--hero-panel) 10%, transparent) 40%,
+      transparent 58%
     ),
-    /* Slight foot tint keeps the counter and controls readable. */
     linear-gradient(
       180deg,
-      rgba(23, 16, 12, 0) 62%,
-      rgba(23, 16, 12, 0.34) 100%
+      transparent 62%,
+      color-mix(in srgb, var(--hero-panel) 38%, transparent) 100%
     );
+}
+
+/*
+ * No mask support (old engines): the photo keeps a hard left edge, so the
+ * scrim steps back up to a solid panel-colored start and takes over the
+ * blending duty on its own.
+ */
+@supports not ((mask-image: linear-gradient(#000, #000)) or (-webkit-mask-image: linear-gradient(#000, #000))) {
+  .mediaScrim {
+    background:
+      linear-gradient(
+        90deg,
+        var(--hero-panel) 0%,
+        color-mix(in srgb, var(--hero-panel) 44%, transparent) 18%,
+        color-mix(in srgb, var(--hero-panel) 12%, transparent) 36%,
+        transparent 56%
+      ),
+      linear-gradient(
+        180deg,
+        transparent 62%,
+        color-mix(in srgb, var(--hero-panel) 38%, transparent) 100%
+      );
+  }
 }
 
 /**
@@ -335,8 +514,14 @@
 .slideNav {
   position: absolute;
   z-index: 6;
-  /* Aligned to the photo's left edge, matching the stats bar above it. */
-  left: calc(var(--panel-width) + var(--static-space-32));
+  /*
+   * Aligned to the photo's left edge, matching the stats bar above it.
+   * This element's containing block is .media (the photo column), not the
+   * hero, so a plain inset is correct here — the previous
+   * calc(--panel-width + …) re-applied the panel offset inside the photo's
+   * own coordinate space and landed the controls ~70% of the way across.
+   */
+  left: var(--static-space-32);
   bottom: var(--static-space-16);
   display: flex;
   align-items: center;
@@ -551,6 +736,73 @@
     min-height: 58vh;
   }
 
+  /*
+   * The wallpaper's tiles shrink so the scribble reads at the same physical
+   * scale on a phone as on a desktop; left at 420px they would blow up into
+   * a handful of giant strokes across a narrow panel.
+   *
+   * The clearing also re-centres. Stacked, the panel is full-width and its
+   * copy runs down the middle rather than hugging the left, so the radial
+   * moves to 50% and tightens vertically — the texture now lives across the
+   * top and foot of the panel instead of around its outer corners.
+   */
+  .panel::before,
+  .panel::after {
+    -webkit-mask-size: 280px 280px, 128px 128px;
+    mask-size: 280px 280px, 128px 128px;
+  }
+
+  .panel::before {
+    background-image: radial-gradient(
+      104% 74% at 50% 46%,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0) 38%,
+      rgba(0, 0, 0, 0.08) 56%,
+      rgba(0, 0, 0, 0.19) 82%,
+      rgba(0, 0, 0, 0.1) 100%
+    );
+    -webkit-mask-position: -34px -24px, 90px 58px;
+    mask-position: -34px -24px, 90px 58px;
+  }
+
+  .panel::after {
+    background-image: radial-gradient(
+      104% 74% at 50% 46%,
+      rgba(242, 231, 219, 0) 0%,
+      rgba(242, 231, 219, 0) 38%,
+      rgba(242, 231, 219, 0.04) 56%,
+      rgba(242, 231, 219, 0.1) 82%,
+      rgba(242, 231, 219, 0.05) 100%
+    );
+    -webkit-mask-position: -35.5px -25.5px, 88.5px 56.5px;
+    mask-position: -35.5px -25.5px, 88.5px 56.5px;
+  }
+
+  /*
+   * Stacked, the seam runs horizontally — panel above, photo below — so the
+   * dissolve rotates to vertical: the photo's top edge melts up into the
+   * espresso panel. Shallower than the desktop fade (the photo column is
+   * only 58vh, so every masked pixel costs more image).
+   */
+  .slide {
+    -webkit-mask-image: linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(0, 0, 0, 0.22) 5%,
+      rgba(0, 0, 0, 0.58) 11%,
+      rgba(0, 0, 0, 0.87) 17%,
+      #000 24%
+    );
+    mask-image: linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(0, 0, 0, 0.22) 5%,
+      rgba(0, 0, 0, 0.58) 11%,
+      rgba(0, 0, 0, 0.87) 17%,
+      #000 24%
+    );
+  }
+
   /**
    * The stacked stats bar occupies the bottom-left, so the counter moves to
    * the top of the photo and the controls sit clear on the right, above the
@@ -620,11 +872,13 @@
     font-size: 0.72rem;
   }
 
+  /* The vertical mask now carries the top blend; the scrim only extends the
+     panel's hue a little further down for the nav sitting top-right. */
   .mediaScrim {
     background: linear-gradient(
       180deg,
-      rgba(23, 16, 12, 0.4) 0%,
-      rgba(23, 16, 12, 0) 45%
+      color-mix(in srgb, var(--hero-panel) 32%, transparent) 0%,
+      transparent 45%
     );
   }
 }
@@ -644,10 +898,10 @@
 @media (prefers-reduced-motion: reduce) {
   .slide {
     transition: opacity 200ms linear;
-    transform: none;
   }
 
-  .slideActive {
+  .slideImage {
+    transition: none;
     transform: none;
   }
 }

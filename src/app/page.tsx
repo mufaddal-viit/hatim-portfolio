@@ -1,6 +1,7 @@
 import { Column, Meta, Schema } from "@once-ui-system/core";
 import { about, baseURL, home, person } from "@/resources";
 import { homeSections } from "@/resources/home.content";
+import { Reveal } from "@/components";
 import {
   CtaSection,
   Hero,
@@ -52,16 +53,36 @@ export default function Home() {
         stats={homeSections.stats.display ? homeSections.stats.items : []}
       />
 
-      <Column className={styles.content} fillWidth horizontal="center">
+      {/*
+        Every section below the hero fades up as it scrolls into view. The
+        hero itself is excluded — it is already on screen at load, so a
+        scroll reveal there would either fire instantly (pointless) or delay
+        the first thing the visitor sees (worse).
+
+        <Reveal> renders a plain full-width div, so it does not disturb the
+        layout: the intro still sits outside `.content` and keeps its
+        full-bleed gutter, and the showcase keeps its edge-to-edge espresso
+        band.
+      */}
+      <Reveal className={styles.revealBlock}>
         <IntroSection content={homeSections.intro} />
-        <ServicesSection content={homeSections.services} />
-      </Column>
+      </Reveal>
 
-      <ShowcaseSection content={homeSections.showcase} />
+      <Reveal className={styles.revealBlock}>
+        <Column className={styles.content} fillWidth horizontal="center">
+          <ServicesSection content={homeSections.services} />
+        </Column>
+      </Reveal>
 
-      <Column className={styles.content} fillWidth horizontal="center">
-        <CtaSection content={homeSections.cta} />
-      </Column>
+      <Reveal className={styles.revealBlock}>
+        <ShowcaseSection content={homeSections.showcase} />
+      </Reveal>
+
+      <Reveal className={styles.revealBlock}>
+        <Column className={styles.content} fillWidth horizontal="center">
+          <CtaSection content={homeSections.cta} />
+        </Column>
+      </Reveal>
     </Column>
   );
 }

@@ -21,11 +21,165 @@
 
 /* ------------------------------------------------------------------ intro */
 
-.introMedia {
+/**
+ * Three-column intro: photograph, centre text, then a column that stacks
+ * copy over a second image.
+ *
+ * Named areas rather than bare column placement, because the responsive step
+ * is a genuine re-composition and not a reflow — at the `m` breakpoint the
+ * heading lifts out to span the full width and the right column drops
+ * beneath, which is trivial to read as a pair of area maps and painful to
+ * follow as a set of column/row spans.
+ *
+ * The centre column is the widest: it carries the display heading, and giving
+ * it the slack keeps that heading off a three-word line.
+ */
+/**
+ * Full-bleed wrapper. Rendered outside the page's `.content` element, which
+ * carries a 40px gutter and a 1680px cap — stacked with this section's own
+ * padding that put 80px between each photograph and the viewport edge.
+ *
+ * The gutter here is deliberately thin: the photographs are meant to run
+ * almost to the edge, with just enough margin that they read as placed
+ * rather than cropped by the window.
+ */
+.introSection {
+  padding-inline: clamp(var(--static-space-12), 1.4vw, var(--static-space-24));
+}
+
+.intro {
+  width: 100%;
+  display: grid;
+  /*
+   * Outer tracks widened against the centre: these two hold the photographs,
+   * and the section's weight should sit in the imagery rather than in a very
+   * wide column of text.
+   */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.22fr) minmax(0, 1.04fr);
+  /* Heading row sizes to content; the body row absorbs what is left so the
+     photograph and right column resolve to the same height. */
+  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-areas:
+    "photo head aside"
+    "photo lead aside";
+  column-gap: clamp(var(--static-space-24), 3.4vw, var(--static-space-56));
+  row-gap: var(--static-space-24);
+  align-items: start;
+}
+
+.introHead {
+  grid-area: head;
+  display: flex;
+  flex-direction: column;
+  gap: var(--static-space-12);
+}
+
+/**
+ * Set once, solid. No outlined echo — see the note in Sections.tsx.
+ * Sentence case is intentional: this heading is a full sentence, and the
+ * reference's all-caps treatment only works on a two-word label.
+ */
+.introHeading {
+  font-family: var(--font-display), Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  font-size: clamp(2.4rem, 4.4vw, 4.4rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  margin: 0;
+  text-wrap: balance;
+}
+
+/*
+ * Scoped to the intro rather than changing the shared .eyebrow: the label
+ * leads a much larger heading here and would look undersized at the size the
+ * services and showcase sections use, but those sections have not changed
+ * and should not inherit this.
+ */
+.introHead .eyebrow {
+  font-size: 0.95rem;
+  letter-spacing: 0.22em;
+}
+
+.introLead {
+  grid-area: lead;
+  display: flex;
+  flex-direction: column;
+  gap: var(--static-space-16);
+  /* Measure cap. The centre column is wide enough at large viewports to run
+     past a comfortable line length without it. */
+  max-width: 46ch;
+}
+
+/* Sits clear of the last paragraph rather than in the paragraph rhythm, so
+   it reads as the section's exit rather than another line of copy. */
+.introAction {
+  margin-top: var(--static-space-8);
+}
+
+/*
+ * Body copy lifted a step to stay in proportion with the enlarged heading —
+ * at the previous size it read as a caption hanging off a display line.
+ * Applied to the children because <Text> sets its own size from its variant,
+ * so inheritance from the container would never reach it.
+ */
+.introLead > *:not(.introAction),
+.introAsideText > * {
+  font-size: clamp(1rem, 1.05vw, 1.125rem);
+  line-height: 1.7;
+}
+
+/**
+ * Right column: text over image. `space-between` rather than a fixed split,
+ * so the image settles against the foot of the column and lines up with the
+ * bottom of the photograph opposite it.
+ */
+.introAside {
+  grid-area: aside;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* Changed from space-between to allow smaller gaps */
+  gap: var(
+    --static-space-24
+  ); /* Changed from 32 to a smaller variable or pixel value like 16px */
+  margin-top: 1em;
+}
+
+.introAsideText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--static-space-16);
+  max-width: 42ch;
+}
+
+/* <figure> carries a UA margin that would break the grid's alignment. */
+.introPhoto,
+.introAsideMedia {
+  margin: 0;
   position: relative;
   overflow: hidden;
-  aspect-ratio: 4 / 5;
   background: var(--neutral-background-medium);
+}
+
+/**
+ * The portrait stretches to the row's full height rather than holding a
+ * fixed ratio, so its foot lands level with the right column instead of
+ * leaving a ragged step. The floor stops it collapsing when the copy is
+ * short; the ceiling stops a long body from stretching it into a strip.
+ */
+.introPhoto {
+  grid-area: photo;
+  align-self: stretch;
+  min-height: clamp(420px, 46vw, 720px);
+}
+
+/*
+ * Squarer than before so the image claims more height in its column. At 4:3
+ * it sat as a thin band under the copy; near-square it reads as the second
+ * photograph of a pair rather than a footnote to the first.
+ */
+.introAsideMedia {
+  aspect-ratio: 5 / 4;
 }
 
 .introImage {
@@ -33,6 +187,59 @@
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+/**
+ * Decorative illustration filling the foot of the right column, between the
+ * second photograph and the services section.
+ *
+ * `flex: 1 1 auto` is what makes it work as a filler: the aside stretches to
+ * the height of the tall portrait opposite, and this claims whatever the text
+ * and image leave over, so the column always bottoms out level instead of
+ * trailing off into empty space. The min-height is the floor for when there
+ * is little to spare.
+ *
+ * The artwork is right-weighted — the botanical line work and the sofa sit in
+ * its right third against an otherwise empty cream ground — so it is anchored
+ * bottom-right and allowed to crop. `cover` on a wide, short box shows the
+ * drawn corner rather than acres of flat cream.
+ */
+.introBackdrop {
+  flex: 1 1 auto;
+  min-height: clamp(150px, 17vw, 280px);
+  background-image: url("/SVGs/backdrop.svg");
+  background-repeat: no-repeat;
+  background-position: right bottom;
+  background-size: cover;
+
+  /*
+   * Two mask layers intersected, so the panel dissolves along both the top
+   * and the left edge and only reaches full strength at the bottom-right
+   * corner where the drawing actually is. Without this the illustration lands
+   * as a hard cream rectangle — the seam is exactly what the request to
+   * "render it smoothly" is about.
+   *
+   * Layers composite additively by default, which would union the two fades
+   * and defeat the purpose; `intersect` requires both to be opaque.
+   */
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.55) 26%, #000 58%),
+    linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.55) 22%, #000 52%);
+  mask-image:
+    linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.55) 26%, #000 58%),
+    linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.55) 22%, #000 52%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
+/*
+ * No mask support: the fade is what keeps this from reading as a pasted-on
+ * rectangle, so drop the whole element rather than ship the hard edge.
+ */
+@supports not ((mask-composite: intersect) or (-webkit-mask-composite: source-in)) {
+  .introBackdrop {
+    display: none;
+  }
 }
 
 /**
@@ -55,16 +262,67 @@
 
 /* --------------------------------------------------------------- services */
 
+/**
+ * One card per service, sized to fill its grid cell so every card in the row
+ * shares a height regardless of how much description it carries.
+ *
+ * The radius is 2px, matching the hero's glass stats bar — this palette is
+ * editorial and squared-off, and a soft 12px radius here would read as a
+ * generic product card dropped into an interiors site.
+ */
 .serviceCard {
-  border-top: 1px solid var(--neutral-alpha-medium);
-  padding-top: var(--static-space-24);
   height: 100%;
+  padding: var(--static-space-32) var(--static-space-24) var(--static-space-32);
+  background: var(--neutral-background-weak);
+  border: 1px solid var(--neutral-alpha-weak);
+  border-radius: 2px;
+  transition:
+    border-color 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    background 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+.serviceCard:hover {
+  background: var(--neutral-background-medium);
+  border-color: var(--scheme-brand-600-30, rgba(125, 92, 70, 0.3));
+  transform: translateY(-4px);
+}
+
+/**
+ * Every second card reads from the right, so the row alternates left / right
+ * / left / right.
+ *
+ * `align-items` is what actually moves the blocks: the card is a flex column,
+ * so text-align alone would re-align the glyphs while leaving each child box
+ * still stretched full width — the ragged edge would land on the wrong side.
+ * Both are set: `align-items` places the boxes, `text-align` handles the rag
+ * inside any line that wraps.
+ */
+.serviceCardAlt {
+  align-items: flex-end;
+  text-align: right;
+}
+
+/**
+ * The numeral sits above a hairline that runs the card's width, so the index
+ * reads as a heading rule rather than a floating digit. Display serif and the
+ * brand ramp tie it to the section headings above.
+ */
 .serviceIndex {
   font-family: var(--font-display), Georgia, serif;
-  font-size: 1.25rem;
-  color: var(--brand-on-background-weak);
+  font-size: 1.75rem;
+  line-height: 1;
+  color: var(--scheme-brand-700, #9c7659);
+  padding-bottom: var(--static-space-16);
+  border-bottom: 1px solid var(--neutral-alpha-weak);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .serviceCard,
+  .serviceCard:hover {
+    transition: none;
+    transform: none;
+  }
 }
 
 /* --------------------------------------------------------------- showcase */
@@ -109,11 +367,64 @@
   color: var(--static-white);
 }
 
+/**
+ * The whole tile is an anchor. `display: block` and an explicit color reset
+ * stop the UA link styles (inline layout, underline, link blue) from reaching
+ * the caption inside.
+ */
 .tile {
   position: relative;
+  display: block;
   overflow: hidden;
   aspect-ratio: 3 / 4;
   background: var(--neutral-background-medium);
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Keyboard parity with :hover, and a visible ring that survives the dark
+   showcase band. */
+.tile:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.85);
+  outline-offset: 3px;
+}
+
+/**
+ * Corner affordance. Sits above the caption gradient, bottom-right, opposite
+ * the caption text so the two never collide.
+ */
+.tileArrow {
+  position: absolute;
+  right: var(--static-space-12);
+  bottom: var(--static-space-12);
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  color: var(--static-white);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  border-radius: 50%;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition:
+    background 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.tileArrow svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* Travels along its own diagonal, matching where the arrowhead points. */
+.tile:hover .tileArrow,
+.tile:focus-visible .tileArrow {
+  background: rgba(255, 255, 255, 0.24);
+  border-color: rgba(255, 255, 255, 0.72);
+  transform: translate(3px, -3px);
 }
 
 .tileImage {
@@ -142,7 +453,10 @@
 
 @media (prefers-reduced-motion: reduce) {
   .tileImage,
-  .tile:hover .tileImage {
+  .tile:hover .tileImage,
+  .tileArrow,
+  .tile:hover .tileArrow,
+  .tile:focus-visible .tileArrow {
     transition: none;
     transform: none;
   }
@@ -154,8 +468,114 @@
   border-top: 1px solid var(--neutral-alpha-weak);
 }
 
+/**
+ * Two columns from `m` down.
+ *
+ * Not a reflow of the three-column map but a re-composition: the heading
+ * lifts out to span the full width (at half the page width it would break
+ * into too many short lines beside a photograph), the photograph and opening
+ * paragraph pair up beneath it, and the right column drops to the foot
+ * spanning both tracks. The photograph keeps the narrower track — it is the
+ * supporting element here, and the copy needs the measure more than it does.
+ */
 @include m {
-  .introMedia {
+  .intro {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      "head  head"
+      "photo lead"
+      "aside aside";
+    row-gap: var(--static-space-32);
+  }
+
+  .introPhoto {
+    min-height: clamp(340px, 50vw, 480px);
+  }
+
+  /* Full width now, so the text and image sit side by side rather than
+     stacking into a tall block that pushes the services section down. */
+  .introAside {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: var(--static-space-32);
+  }
+
+  .introAsideText,
+  .introAsideMedia {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  /*
+   * Dropped once the aside becomes a side-by-side row: there is no leftover
+   * column height for it to fill here, and as a third item in the row it
+   * would squeeze the text and photograph it exists to sit beneath.
+   */
+  .introBackdrop {
+    display: none;
+  }
+
+  .introAsideText {
+    max-width: none;
+  }
+
+  .introAsideMedia {
     aspect-ratio: 16 / 10;
+  }
+}
+
+/**
+ * Two columns are kept at phone widths per the brief, so the tracks are
+ * rebalanced instead of collapsed: the photograph gives up width to protect
+ * the body measure, which is the first thing to break in a narrow pair.
+ * The right column stacks again — side by side it would leave two ~140px
+ * items, too narrow for either the text or the image to read.
+ */
+@include s {
+  .intro {
+    grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
+    column-gap: var(--static-space-16);
+    row-gap: var(--static-space-24);
+  }
+
+  .introPhoto {
+    min-height: clamp(280px, 62vw, 400px);
+  }
+
+  .introHead .eyebrow {
+    font-size: 0.85rem;
+    letter-spacing: 0.18em;
+  }
+
+  .introAside {
+    flex-direction: column;
+    gap: var(--static-space-20);
+  }
+
+  /*
+   * Undo the row-layout flex from the `m` block above, which still applies at
+   * this width. With the aside back in a column, `flex: 1 1 0` resolves its
+   * basis against the *height* — the figure collapsed to zero, and
+   * `overflow: hidden` clipped the photograph out of the page entirely. This
+   * is why the second image was missing on phones.
+   */
+  .introAsideText,
+  .introAsideMedia {
+    flex: 0 0 auto;
+  }
+
+  /*
+   * Full-bleed band at a fixed height: the aside spans both grid tracks here,
+   * so the image runs the full width of the section and crops to a letterbox
+   * rather than holding a ratio that would make it disproportionately tall on
+   * a narrow screen.
+   */
+  .introAsideMedia {
+    width: 100%;
+    /* Explicit height wins over the base 5:4, but reset the ratio so the two
+       can never disagree about the box. */
+    aspect-ratio: auto;
+    height: clamp(200px, 48vw, 300px);
   }
 }

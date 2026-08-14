@@ -9,4 +9,5 @@ export { ScrollToHash } from "@/components/ScrollToHash";
 export { ThemeToggle } from "@/components/ThemeToggle";
 export { ThemeInitScript } from "@/components/ThemeInitScript";
 export { BrandMark } from "@/components/BrandMark";
+export { Reveal } from "@/components/Reveal";
 export { CustomMDX } from "@/components/mdx";

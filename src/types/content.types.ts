@@ -184,11 +184,27 @@ export type HomeSections = {
     eyebrow: string;
     /** Rendered in the display serif. */
     heading: string;
+    /**
+     * First paragraph sits under the heading in the centre column; every
+     * paragraph after it moves to the right-hand column.
+     */
     body: string[];
+    /** Tall portrait photograph filling the left column. */
     image: {
       src: `/images/${string}` | string;
       alt: string;
     };
+    /**
+     * Landscape image closing the right-hand column, beneath its text.
+     * Optional — without it the right column is text only and the layout
+     * still holds.
+     */
+    secondaryImage?: {
+      src: `/images/${string}` | string;
+      alt: string;
+    };
+    /** Call to action closing the centre column. Omit to hide the button. */
+    action?: { label: string; href: string };
   };
   services: {
     display: boolean;
@@ -208,6 +224,12 @@ export type HomeSections = {
       alt: string;
       caption: string;
       meta: string;
+      /**
+       * Filename (without extension) of the MDX in
+       * `src/app/work/projects`. The tile links to `/work/<slug>`, so a slug
+       * with no matching file will 404.
+       */
+      slug: string;
     }>;
   };
   cta: {

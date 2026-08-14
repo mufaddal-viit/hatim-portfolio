@@ -1,11 +1,20 @@
-import { About, Blog, Gallery, Home, Newsletter, Person, Social, Work } from "@/types";
+import {
+  About,
+  Blog,
+  Gallery,
+  Home,
+  Newsletter,
+  Person,
+  Social,
+  Work,
+} from "@/types";
 
 const person: Person = {
-  firstName: "First",
-  lastName: "Last",
+  firstName: "Hatim",
+  lastName: "Merji",
   name: `First Last`,
-  role: "Your Role",
-  avatar: "/images/avatar.jpg",
+  role: "Interior Designer",
+  avatar: "/images/avatar2.png",
   email: "hello@example.com",
   location: "Asia/Dubai", // Expecting the IANA time zone identifier, e.g., 'Europe/Vienna'
   languages: [], // optional: Leave the array empty if you don't want to display languages
@@ -63,8 +72,9 @@ const home: Home = {
   },
   subline: (
     <>
-      I'm {person.firstName}, a {person.role.toLowerCase()}. A short introduction goes here —
-      one or two sentences about what you do and who you do it for.
+      I'm {person.firstName}, a {person.role.toLowerCase()}. A short
+      introduction goes here — one or two sentences about what you do and who
+      you do it for.
     </>
   ),
 };
@@ -90,8 +100,8 @@ const about: About = {
     title: "Introduction",
     description: (
       <>
-        A short bio goes here. Introduce yourself, what you specialise in, and the kind of
-        problems you enjoy solving.
+        A short bio goes here. Introduce yourself, what you specialise in, and
+        the kind of problems you enjoy solving.
       </>
     ),
   },
@@ -129,7 +139,9 @@ const about: About = {
     skills: [
       {
         title: "Skill Name",
-        description: <>A short description of your experience with this skill.</>,
+        description: (
+          <>A short description of your experience with this skill.</>
+        ),
         tags: [
           // Available icons are registered in src/resources/icons.ts
           {
